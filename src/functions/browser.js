@@ -88,23 +88,89 @@ app.http('browser', {
     handler: async (request, context) => {
         context.log(`Http function processed request for url "${request.url}"`);
 
-        const url = request.query.get('url') || null;
-        const aiEnhanced = request.query.get('aiEnhanced') == "true";
-        let msg, status;
-        if (url) {
-            const content = await getPageContent(url);
-            const md = NodeHtmlMarkdown.translate(content);
-            (aiEnhanced)? msg = await cleanup(md): msg = md;
-            status = 200;
+        let status = 200,
+            res;
+        let token = request.headers.get("X-Auth-Token");
+        if (token) {
+            token = token.split(" ")[1].trim();
+            try {
+                let user = await admin.auth().verifyIdToken(token)
+                    .catch(err => {
+                        if (err) {
+                            status = 403;
+                            res = {
+                                success: false,
+                                error: "Forbidden"
+                            };
+
+                            return {
+                                body: JSON.stringify(res),
+                                status,
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                }
+                            };
+                        }
+                    });
+
+                if (!user) {
+                    status = 403;
+                    res = {
+                        success: false,
+                        error: "Forbidden"
+                    };
+
+                    return {
+                        body: JSON.stringify(res),
+                        status,
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    };
+                }
+
+                const url = request.query.get('url') || null;
+                const aiEnhanced = request.query.get('aiEnhanced') == "true";
+                let msg;
+                if (url) {
+                    const content = await getPageContent(url);
+                    const md = NodeHtmlMarkdown.translate(content);
+                    (aiEnhanced) ? msg = await cleanup(md) : msg = md;
+                    res = {
+                        success: true,
+                        content: msg
+                    };
+                    status = 200;
+                } else {
+                    res = {
+                        success: false,
+                        error: "Bad Request"
+                    };
+                    status = 400;
+                }
+
+            } catch (err) {
+                if (err) {
+                    res = {
+                        success: false,
+                        error: err.message
+                    };
+                    status = 500;
+                }
+            }
         } else {
-            msg = "Bad Request"
-            status = 400;
+            res = {
+                success: false,
+                error: (!token) ? "Unauthorized" : "Bad Request"
+            };
+            status = (!token) ? 401 : 400;
         }
+
         return {
+            body: JSON.stringify(res),
             status,
-            body: msg,
             headers: {
-                "Content-Type": "text/plain"
+                'Content-Type': 'application/json'
             }
         };
     }

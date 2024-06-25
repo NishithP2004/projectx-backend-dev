@@ -63,22 +63,79 @@ app.http('search', {
     handler: async (request, context) => {
         context.log(`Http function processed request for url "${request.url}"`);
 
-        const query = request.query.get('q');
-        const type = request.query.get('type') || "bing";
-        let status, res;
+        let status = 200,
+            res;
+        let token = request.headers.get("X-Auth-Token");
+        if (token) {
+            token = token.split(" ")[1].trim();
+            try {
+                let user = await admin.auth().verifyIdToken(token)
+                    .catch(err => {
+                        if (err) {
+                            status = 403;
+                            res = {
+                                success: false,
+                                error: "Forbidden"
+                            };
 
-        if (query) {
-            res = {
-                success: true,
-                result: await search(query, type)
-            };
-            status = 200;
+                            return {
+                                body: JSON.stringify(res),
+                                status,
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                }
+                            };
+                        }
+                    });
+
+                if (!user) {
+                    status = 403;
+                    res = {
+                        success: false,
+                        error: "Forbidden"
+                    };
+
+                    return {
+                        body: JSON.stringify(res),
+                        status,
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    };
+                }
+
+                const query = request.query.get('q');
+                const type = request.query.get('type') || "bing";
+
+                if (query) {
+                    res = {
+                        success: true,
+                        result: await search(query, type)
+                    };
+                    status = 200;
+                } else {
+                    res = {
+                        error: "Bad Request",
+                        success: false
+                    };
+                    status = 400;
+                }
+
+            } catch (err) {
+                if (err) {
+                    res = {
+                        success: false,
+                        error: err.message
+                    };
+                    status = 500;
+                }
+            }
         } else {
             res = {
-                error: "Bad Request",
-                success: false
-            }
-            status = 400;
+                success: false,
+                error: (!token) ? "Unauthorized" : "Bad Request"
+            };
+            status = (!token) ? 401 : 400;
         }
 
         return {

@@ -1,6 +1,6 @@
 const { createClient } = require("redis");
 require('dotenv').config({
-    path: "../.env"
+    path: ".env"
 });
 
 const client = createClient({

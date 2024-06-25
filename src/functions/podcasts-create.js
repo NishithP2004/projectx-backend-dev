@@ -8,7 +8,7 @@ const crypto = require("node:crypto")
 
 const {
     redis
-} = require("../cache")
+} = require("./cache")
 
 require('dotenv').config({
     path: ".env"
@@ -54,7 +54,7 @@ app.http('podcasts-create', {
         context.log(`Http function processed request for url "${request.url}"`);
         let status = 200,
             res;
-        let token = request.headers.get("Authorization");
+        let token = request.headers.get("X-Auth-Token");
         if (token) {
             token = token.split(" ")[1].trim();
             try {

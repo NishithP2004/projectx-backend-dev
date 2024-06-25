@@ -103,7 +103,7 @@ app.http('courses-doc-content', {
 
         let status = 200,
             res;
-        let token = request.headers.get("Authorization");
+        let token = request.headers.get("X-Auth-Token");
         const doc_id = request.params.id || null;
 
         if (token && doc_id) {

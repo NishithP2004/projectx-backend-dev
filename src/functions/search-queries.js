@@ -83,7 +83,7 @@ app.http('search-queries', {
             let body = await request.json();
             let content = body.content;
             let doc_id = body.doc_id;
-            let token = request.headers.get("Authorization");
+            let token = request.headers.get("X-Auth-Token");
             console.log(body)
 
             let status = 200,
