@@ -55,7 +55,7 @@ app.http('podcasts-delete', {
 
         let status = 200,
             res;
-        let token = request.headers.get("X-Auth-Token");
+        let token = request.headers.get("authorization");
         const podcast_id = request.params.id;
 
         if (token && podcast_id) {

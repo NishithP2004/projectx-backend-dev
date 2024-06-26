@@ -8,6 +8,7 @@ const {
 require('dotenv').config({
     path: ".env"
 });
+const admin = require('firebase-admin');
 
 // -- Models --
 const { AzureOpenAI } = require("openai")
@@ -90,7 +91,7 @@ app.http('browser', {
 
         let status = 200,
             res;
-        let token = request.headers.get("X-Auth-Token");
+        let token = request.headers.get("authorization");
         if (token) {
             token = token.split(" ")[1].trim();
             try {

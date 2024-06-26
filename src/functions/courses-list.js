@@ -25,7 +25,7 @@ async function getCourses(user) {
         let courses = await collection.find({
             "author": user
         }).toArray() || [];
-
+        
         return courses;
     } catch (err) {
         if (err) {
@@ -43,7 +43,7 @@ app.http('courses-list', {
         context.log(`Http function processed request for url "${request.url}"`);
         let status = 200,
             res;
-        let token = request.headers.get("X-Auth-Token");
+        let token = request.headers.get("authorization");
         if (token) {
             token = token.split(" ")[1].trim();
             try {

@@ -57,7 +57,7 @@ async function formatDocument(document) {
     } catch(err) {
         if(err) {
             console.error(err);
-            return null;
+            return document;
         }
     }
 }
@@ -103,7 +103,7 @@ app.http('courses-doc-content', {
 
         let status = 200,
             res;
-        let token = request.headers.get("X-Auth-Token");
+        let token = request.headers.get("authorization");
         const doc_id = request.params.id || null;
 
         if (token && doc_id) {

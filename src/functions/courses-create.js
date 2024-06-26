@@ -34,7 +34,7 @@ app.http('courses-create', {
             let payload = await request.formData();
             let file = payload.get('file')
 
-            let token = request.headers.get("X-Auth-Token");
+            let token = request.headers.get("authorization");
 
             if (file && token) {
                 token = token.split(" ")[1].trim();

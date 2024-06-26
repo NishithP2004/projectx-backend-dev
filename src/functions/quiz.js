@@ -103,7 +103,7 @@ app.http('quiz', {
         } else {
             const body = await request.json();
 
-            let token = request.headers.get("X-Auth-Token");
+            let token = request.headers.get("authorization");
             let content = body.transcript || body.summary;
             let questions = body.questions || 1;
             let doc_id = body.doc_id;
