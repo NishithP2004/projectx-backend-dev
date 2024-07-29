@@ -80,7 +80,7 @@ app.http('podcasts-create', {
 
                 let data = await request.json();
                 console.log(data)
-                let interactive = new Boolean(data.hasOwnProperty("ph") || request.query.get("interactive") == "true")
+                let interactive = data.hasOwnProperty("ph");
                 console.log("Interactive: " + interactive)
                 const userRecord = await admin.auth().getUser(user.uid);
                 data.user = {
